@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor de Medidas | Polegadas ⇄ Milímetros</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+  <style>
+    :root {
+      --primary: #6e6e6e;
+      --secondary: #3d3d3d;
+      --accent: #dbdbdb;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #90e891;
+      --warning: #f72585;
+      --border-radius: 10px;
+      --box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Side Rules - Modern Design */
+    .rule-side {
+      width: 80px;
+      background: white;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+      position: relative;
+      z-index: 10;
+    }
+
+    .rule-left {
+      border-right: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .rule-right {
+      border-left: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .rule-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .converter-card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 600px;
+      transition: var(--transition);
+    }
+
+    .converter-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .header p {
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      font-size: 1rem;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input {
+      padding: 1rem;
+      font-size: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+      width: 100%;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    button:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .results {
+      margin-top: 2rem;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--primary);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: var(--transition);
+    }
+
+    .result-card:hover {
+      transform: translateX(5px);
+    }
+
+    .result-card.closest {
+      border-left-color: var(--success);
+      background: linear-gradient(to right, rgba(21, 31, 49, 0.05), white);
+    }
+
+    .result-card.lower {
+      border-left-color: #ff9e00;
+    }
+
+    .result-card.higher {
+      border-left-color: var(--warning);
+    }
+
+    .result-title {
+      font-size: 1rem;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .result-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .result-difference {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .rule-side {
+        width: 50px;
+      }
+      
+      .main-content {
+        padding: 1.5rem;
+      }
+      
+      .converter-card {
+        padding: 1.5rem;
+      }
+      
+      .header h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .app-container {
+        flex-direction: column;
+      }
+      
+      .rule-side {
+        width: 100%;
+        height: 50px;
+        display: flex;
+      }
+      
+      .rule-left {
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+      }
+      
+      .rule-right {
+        border-left: none;
+        border-top: 1px solid rgba(0,0,0,0.05);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="rule-side rule-left">
+      <canvas class="rule-canvas" id="ruleLeft"></canvas>
+    </div>
+    
+    <div class="main-content">
+      <div class="converter-card">
+        <div class="header">
+          <h1>Conversor de Medidas</h1>
+          <p>Converta facilmente entre polegadas e milímetros</p>
+        </div>
+        
+        <div class="input-group">
+          <label for="measurement">Digite a medida em milímetros:</label>
+          <input type="number" id="measurement" placeholder="Ex: 26.5" step="0.01">
+        </div>
+        
+        <button onclick="convert()">Converter</button>
+        
+        <div class="results" id="results"></div>
+      </div>
+    </div>
+    
+    <div class="rule-side rule-right">
+      <canvas class="rule-canvas" id="ruleRight"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // Tabela de conversão otimizada
+    const conversionTable = [
+      { pol: "1/16\"", mm: 1.59 },
+      { pol: "1/8\"", mm: 3.18 },
+      { pol: "3/16\"", mm: 4.76 },
+      { pol: "1/4\"", mm: 6.35 },
+      { pol: "5/16\"", mm: 7.94 },
+      { pol: "3/8\"", mm: 9.53 },
+      { pol: "7/16\"", mm: 11.11 },
+      { pol: "1/2\"", mm: 12.70 },
+      { pol: "9/16\"", mm: 14.29 },
+      { pol: "5/8\"", mm: 15.88 },
+      { pol: "11/16\"", mm: 17.46 },
+      { pol: "3/4\"", mm: 19.05 },
+      { pol: "13/16\"", mm: 20.64 },
+      { pol: "7/8\"", mm: 22.23 },
+      { pol: "15/16\"", mm: 23.81 },
+      { pol: "1\"", mm: 25.40 },
+      { pol: "1.1/16\"", mm: 26.99 },
+      { pol: "1.1/8\"", mm: 28.58 },
+      { pol: "1.3/16\"", mm: 30.16 },
+      { pol: "1.1/4\"", mm: 31.75 },
+      { pol: "1.5/16\"", mm: 33.34 },
+      { pol: "1.3/8\"", mm: 34.93 },
+      { pol: "1.7/16\"", mm: 36.51 },
+      { pol: "1.1/2\"", mm: 38.10 },
+      { pol: "1.9/16\"", mm: 39.69 },
+      { pol: "1.5/8\"", mm: 41.28 },
+      { pol: "1.11/16\"", mm: 42.86 },
+      { pol: "1.3/4\"", mm: 44.45 },
+      { pol: "1.13/16\"", mm: 46.04 },
+      { pol: "1.7/8\"", mm: 47.63 },
+      { pol: "1.15/16\"", mm: 49.21 },
+      { pol: "2\"", mm: 50.80 },
+      { pol: "2.1/16\"", mm: 52.39 }, { pol: "2.1/8\"", mm: 53.98 },
+      { pol: "2.3/16\"", mm: 55.56 }, { pol: "2.1/4\"", mm: 57.15 },
+      { pol: "2.5/16\"", mm: 58.74 }, { pol: "2.3/8\"", mm: 60.33 },
+      { pol: "2.7/16\"", mm: 61.91 }, { pol: "2.1/2\"", mm: 63.50 },
+      { pol: "2.9/16\"", mm: 65.09 }, { pol: "2.5/8\"", mm: 66.68 },
+      { pol: "2.11/16\"", mm: 68.26 }, { pol: "2.3/4\"", mm: 69.85 },
+      { pol: "2.13/16\"", mm: 71.44 }, { pol: "2.7/8\"", mm: 73.03 },
+      { pol: "2.15/16\"", mm: 74.61 }, { pol: "3\"", mm: 76.20 },
+      { pol: "3.1/8\"", mm: 79.38 }, { pol: "3.1/4\"", mm: 82.55 },
+      { pol: "3.3/8\"", mm: 85.73 }, { pol: "3.1/2\"", mm: 88.90 },
+      { pol: "3.5/8\"", mm: 92.08 }, { pol: "3.3/4\"", mm: 95.25 },
+      { pol: "3.7/8\"", mm: 98.43 }, { pol: "4\"", mm: 101.60 },
+      { pol: "4.1/4\"", mm: 107.95 }, { pol: "4.1/2\"", mm: 114.30 },
+      { pol: "4.3/4\"", mm: 120.65 }, { pol: "5\"", mm: 127.00 },
+      { pol: "5.1/4\"", mm: 133.35 }, { pol: "5.1/2\"", mm: 139.70 },
+      { pol: "5.3/4\"", mm: 146.05 }, { pol: "6\"", mm: 152.40 },
+      { pol: "6.1/4\"", mm: 158.75 }, { pol: "6.1/2\"", mm: 165.10 },
+      { pol: "6.3/4\"", mm: 171.45 }, { pol: "7\"", mm: 177.80 },
+      { pol: "7.1/2\"", mm: 190.50 }, { pol: "8\"", mm: 203.20 },
+      { pol: "8.1/2\"", mm: 215.90 }, { pol: "9\"", mm: 228.60 },
+      { pol: "9.1/2\"", mm: 241.30 }, { pol: "10\"", mm: 254.00 },
+      { pol: "10.1/2\"", mm: 266.70 }, { pol: "11\"", mm: 279.40 },
+      { pol: "11.1/2\"", mm: 292.10 }, { pol: "12\"", mm: 304.80 },
+      { pol: "12.1/2\"", mm: 317.50 }, { pol: "13\"", mm: 330.20 },
+      { pol: "13.1/2\"", mm: 342.90 }, { pol: "14\"", mm: 355.60 },
+      { pol: "14.1/2\"", mm: 368.30 }, { pol: "15\"", mm: 381.00 },
+      { pol: "15.1/2\"", mm: 393.70 }, { pol: "16\"", mm: 406.40 },
+      { pol: "16.1/2\"", mm: 419.10 }, { pol: "17\"", mm: 431.80 },
+      { pol: "17.1/2\"", mm: 444.50 }, { pol: "18\"", mm: 457.20 },
+      { pol: "18.1/2\"", mm: 469.90 }, { pol: "19\"", mm: 482.60 },
+      { pol: "19.1/2\"", mm: 495.30 }, { pol: "20\"", mm: 508.00 },
+      { pol: "20.1/2\"", mm: 520.70 }, { pol: "21\"", mm: 533.40 }
+    ];
+
+function convert() {
+  const input = parseFloat(document.getElementById("measurement").value);
+  const resultsContainer = document.getElementById("results");
+  
+  if (isNaN(input)) {
+    resultsContainer.innerHTML = `
+      <div class="result-card">
+        <div class="result-title">Por favor, insira um valor válido</div>
+      </div>
+    `;
+    return;
+  }
+
+	  // Ordena a tabela
+	  const sortedTable = [...conversionTable].sort((a, b) => a.mm - b.mm);
+	  
+	  // Encontra a mais próxima
+	  let closest = sortedTable[0];
+	  let minDiff = Math.abs(input - closest.mm);
+	  let closestIndex = 0;
+
+	  for (let i = 1; i < sortedTable.length; i++) {
+		const diff = Math.abs(input - sortedTable[i].mm);
+		if (diff < minDiff) {
+		  minDiff = diff;
+		  closest = sortedTable[i];
+		  closestIndex = i;
+		}
+	  }
+
+	  // Encontra a imediatamente inferior
+	  let lower = null;
+	  for (let i = closestIndex - 1; i >= 0; i--) {
+		if (sortedTable[i].mm < input) {
+		  lower = sortedTable[i];
+		  break;
+		}
+	  }
+
+	  // Encontra a imediatamente superior
+	  let higher = null;
+	  for (let i = closestIndex + 1; i < sortedTable.length; i++) {
+		if (sortedTable[i].mm > input) {
+		  higher = sortedTable[i];
+		  break;
+		}
+	  }
+
+	  // Monta os resultados
+	  let resultsHTML = '';
+
+	  if (higher) {
+		resultsHTML += `
+		  <div class="result-card higher">
+			<div class="result-title">Medida Superior</div>
+			<div class="result-value">${higher.inch || higher.pol} (${higher.mm.toFixed(2)} mm)</div>
+			<div class="result-difference">Diferença: -${(higher.mm - input).toFixed(2)} mm</div>
+		  </div>
+		`;
+	  }
+
+
+	  resultsHTML += `
+		<div class="result-card closest">
+		  <div class="result-title">Medida Mais Próxima</div>
+		  <div class="result-value">${closest.inch || closest.pol} (${closest.mm.toFixed(2)} mm)</div>
+		  <div class="result-difference">Diferença: ±${minDiff.toFixed(2)} mm</div>
+		</div>
+	  `;
+
+	  if (lower) {
+		resultsHTML += `
+		  <div class="result-card lower">
+			<div class="result-title">Medida Inferior</div>
+			<div class="result-value">${lower.inch || lower.pol} (${lower.mm.toFixed(2)} mm)</div>
+			<div class="result-difference">Diferença: +${(input - lower.mm).toFixed(2)} mm</div>
+		  </div>
+		`;
+	  }
+
+
+	  resultsContainer.innerHTML = resultsHTML;
+	}
+
+    // Função para desenhar as réguas (modernizado)
+    function drawRules() {
+      const canvasLeft = document.getElementById('ruleLeft');
+      const canvasRight = document.getElementById('ruleRight');
+      const isMobile = window.innerWidth < 576;
+      
+      if (isMobile) {
+        canvasLeft.width = window.innerWidth;
+        canvasLeft.height = 50;
+        canvasRight.width = window.innerWidth;
+        canvasRight.height = 50;
+      } else {
+        canvasLeft.width = 80;
+        canvasLeft.height = window.innerHeight;
+        canvasRight.width = 80;
+        canvasRight.height = window.innerHeight;
+      }
+      
+      const ctxLeft = canvasLeft.getContext('2d');
+      const ctxRight = canvasRight.getContext('2d');
+      
+      // Estilo moderno para as réguas
+      ctxLeft.strokeStyle = '#222222';
+      ctxLeft.lineWidth = 1;
+      ctxRight.strokeStyle = '#222222';
+      ctxRight.lineWidth = 1;
+      
+      // Desenha a régua esquerda (polegadas)
+      if (isMobile) {
+        // Horizontal para mobile
+        ctxLeft.beginPath();
+        ctxLeft.moveTo(0, 25);
+        ctxLeft.lineTo(canvasLeft.width, 25);
+        ctxLeft.stroke();
+        
+        for (let inch = 0; inch <= canvasLeft.width / 25.4; inch += 0.125) {
+          const x = inch * 25.4;
+          const size = inch % 1 === 0 ? 15 : (inch % 0.5 === 0 ? 10 : 5);
+          
+          ctxLeft.beginPath();
+          ctxLeft.moveTo(x, 25);
+          ctxLeft.lineTo(x, 25 + size);
+          ctxLeft.stroke();
+        }
+      } else {
+        // Vertical para desktop
+        ctxLeft.beginPath();
+        ctxLeft.moveTo(60, 0);
+        ctxLeft.lineTo(60, canvasLeft.height);
+        ctxLeft.stroke();
+        
+        for (let inch = 0; inch <= canvasLeft.height / 25.4; inch += 0.125) {
+          const y = inch * 25.4;
+          const size = inch % 1 === 0 ? 15 : (inch % 0.5 === 0 ? 10 : 5);
+          
+          ctxLeft.beginPath();
+          ctxLeft.moveTo(60 - size, y);
+          ctxLeft.lineTo(60, y);
+          ctxLeft.stroke();
+        }
+      }
+      
+      // Desenha a régua direita (milímetros)
+      if (isMobile) {
+        // Horizontal para mobile
+        ctxRight.beginPath();
+        ctxRight.moveTo(0, 25);
+        ctxRight.lineTo(canvasRight.width, 25);
+        ctxRight.stroke();
+        
+        for (let mm = 0; mm <= canvasRight.width; mm += 1) {
+          const x = mm;		  
+          const size = mm % 10 === 0 ? 15 : (mm % 5 === 0 ? 10 : 5);
+          
+          ctxRight.beginPath();
+          ctxRight.moveTo(x, 25);
+          ctxRight.lineTo(x, 25 + size);
+          ctxRight.stroke();
+        }
+      } else {
+        // Vertical para desktop
+        ctxRight.beginPath();
+        ctxRight.moveTo(20, 0);
+        ctxRight.lineTo(20, canvasRight.height);
+        ctxRight.stroke();
+        
+        for (let mm = 0; mm <= canvasRight.height; mm += 1) {
+          const y = mm * 5;
+          const size = mm % 10 === 0 ? 20 : (mm % 5 === 0 ? 10 : 5);
+          
+          ctxRight.beginPath();
+          ctxRight.moveTo(20, y);
+          ctxRight.lineTo(20 + size, y);
+          ctxRight.stroke();
+        }
+      }
+    }
+
+    // Inicialização
+    window.addEventListener('load', () => {
+      drawRules();
+      // Foca automaticamente no input
+      document.getElementById("measurement").focus();
+    });
+    
+    window.addEventListener('resize', drawRules);
+  </script>
+</body>
+</html>
